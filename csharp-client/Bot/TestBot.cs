@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Coveo.Bot;
 using Microsoft.Win32;
 
@@ -14,7 +15,7 @@ namespace CoveoBlitz.RandomBot
         public int CostToMine { get; set; }
         public int Life { get; set; }
         public int Gold { get; set; }
-
+        public int MyHeroId { get; set; }
         public List<Pos> Mines = new List<Pos>();
         public List<Pos> Tavernes = new List<Pos>();
 
@@ -41,12 +42,8 @@ namespace CoveoBlitz.RandomBot
             // Initial setup
             if (!setup)
             {
-                // Calculate cost to nearest tavern
-                // Calculate cost to nearest mine
                 GetImportantPos(state.board);
-
-
-
+                MyHeroId = state.myHero.id;
                 setup = true;
             }
 
@@ -63,13 +60,13 @@ namespace CoveoBlitz.RandomBot
             {
 
                 // If adjacent mine present
-                if (MineToClaim(board.At(north), state.myHero.id))
+                if (MineToClaim(board.At(north)))
                     return Direction.North;
-                if (MineToClaim(board.At(south), state.myHero.id))
+                if (MineToClaim(board.At(south)))
                     return Direction.South;
-                if (MineToClaim(board.At(west), state.myHero.id))
+                if (MineToClaim(board.At(west)))
                     return Direction.West;
-                if (MineToClaim(board.At(east), state.myHero.id))
+                if (MineToClaim(board.At(east)))
                     return Direction.East;
             }
 
@@ -86,17 +83,7 @@ namespace CoveoBlitz.RandomBot
                     return Direction.East;
             }
 
-            //// Check if life enough to subsist
-            //if (Life < CostToTavern + Constant.LifeDrainOnHit)
-            //{
-            //    // Pathfind to tavern
-
-            //}
-            //else
-            //{
-            //    // Pathfind to Mine
-            //}
-
+            ///TROUVER BUT
            
             // Target player with maximum mines
             var MaxMinePlayer = new Pos();
@@ -115,8 +102,20 @@ namespace CoveoBlitz.RandomBot
                 }
             }
 
-            if(MaxMine > 0 && enemyLife < state.myHero.life)
-                return CalculatePath(state, MaxMinePlayer);
+            var meilleureTaverne = GetClosestTavern(pos);
+            var meilleureMine = GetClosestMine(pos, state.board);
+
+
+            if (MaxMine > state.myHero.mineCount + 1 &&
+                getDistance(MaxMinePlayer, pos) < getDistance(meilleureMine, meilleureMine))
+            {
+                return CalculatePath(state, enemyLife < state.myHero.life ? MaxMinePlayer : meilleureTaverne);
+            }
+
+            if (Life > 40)
+                return CalculatePath(state, meilleureMine);
+
+            return CalculatePath(state, meilleureTaverne);
 
             //Check si assez vie, alors pathfind to
             string direction = string.Empty;
@@ -203,10 +202,10 @@ namespace CoveoBlitz.RandomBot
 
         }
 
-        public bool MineToClaim(Tile tile, int hero)
+        public bool MineToClaim(Tile tile)
         {
             return (tile == Tile.GOLD_MINE_1 || tile == Tile.GOLD_MINE_2 || tile == Tile.GOLD_MINE_3 ||
-                    tile == Tile.GOLD_MINE_4 || tile == Tile.GOLD_MINE_NEUTRAL) && !OurMine(tile, hero);
+                    tile == Tile.GOLD_MINE_4 || tile == Tile.GOLD_MINE_NEUTRAL) && !OurMine(tile, MyHeroId);
         }
 
         public void GetImportantPos(Tile[][] board)
@@ -226,6 +225,45 @@ namespace CoveoBlitz.RandomBot
             }
         }
 
+
+        public Pos GetClosestMine(Pos pos, Tile[][] board)
+        {
+            Pos meilleurePos = new Pos();
+            int meilleureDist = int.MaxValue;
+
+            foreach (var mine in Mines)
+            {
+                if (MineToClaim(board.At(mine)))
+                {
+                    var tempDist = getDistance(pos, mine);
+                    if (tempDist < meilleureDist)
+                    {
+                        meilleureDist = tempDist;
+                        meilleurePos = mine;
+                    }
+                }
+            }
+            return meilleurePos;
+
+        }
+
+        public Pos GetClosestTavern(Pos pos)
+        {
+            Pos meilleurePos = new Pos();
+            int meilleureDist = int.MaxValue;
+
+            foreach (var taverne in Tavernes)
+            {
+                var tempDist = getDistance(pos, taverne);
+                if (tempDist < meilleureDist)
+                {
+                    meilleureDist = tempDist;
+                    meilleurePos = taverne;
+                }
+            }
+            return meilleurePos;
+
+        }
 
 
         private string CalculatePath(GameState state, Pos goal)
@@ -354,7 +392,8 @@ namespace CoveoBlitz.RandomBot
                 PathCoord pc = new PathCoord();
 
                 var currentTile = state.board.At(current);
-                if (( currentTile!= Tile.FREE || currentTile != Tile.SPIKES)  && areEqual(goal, current))
+
+                if (!(currentTile == Tile.FREE || currentTile == Tile.SPIKES || areEqual(goal, current) || (currentTile >= Tile.HERO_1 && currentTile <= Tile.HERO_4)))
                 {
                     return null;
                 }
@@ -364,7 +403,7 @@ namespace CoveoBlitz.RandomBot
                     pc.weight = previous.weight; // to modify
                 }
 
-                pc.weight += getCost(state.board[current.y][current.x]);
+                pc.weight += getCost(state.board.At(current));
                 pc.current = current;
                 pc.previous = previous;
                 pc.previousDirection = previousDirection;
