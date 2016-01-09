@@ -40,7 +40,7 @@ namespace CoveoBlitz.RandomBot
         {
             currentState = currentState.CalculateNextState(state, this);
             var nextGoal = currentState.GetGoal(state, this);
-            return CalculatePath(state, nextGoal);
+            return CalculatePath(state, nextGoal).Item1;
         }
 
         public string Move(GameState state)
@@ -60,14 +60,14 @@ namespace CoveoBlitz.RandomBot
                 setup = true;
             }
 
-            Console.WriteLine(pos.x + ", "+ pos.y);
+            //Console.WriteLine(pos.x + ", "+ pos.y);
 
             Pos north = new Pos {x = pos.x-1, y = pos.y};
             Pos south = new Pos {x = pos.x+1, y = pos.y};
             Pos east = new Pos {x = pos.x, y = pos.y+1};
             Pos west = new Pos {x = pos.x, y = pos.y-1};
 
-            Console.WriteLine(board.At(north).ToString() + ", "+ board.At(south).ToString() + ", " + board.At(east).ToString() + ", " + board.At(west).ToString());
+            //Console.WriteLine(board.At(north).ToString() + ", "+ board.At(south).ToString() + ", " + board.At(east).ToString() + ", " + board.At(west).ToString());
 
             if (Life > 25)
             {
@@ -304,11 +304,11 @@ namespace CoveoBlitz.RandomBot
         }
 
 
-        private string CalculatePath(GameState state, Pos goal)
+        private Tuple<string, int> CalculatePath(GameState state, Pos goal)
         {
             Pos start = state.myHero.pos;
 
-            Console.WriteLine("Begining calculating path from ({0},{1}) to ({2},{3})", start.x, start.y, goal.x, goal.y);
+            //Console.WriteLine("Begining calculating path from ({0},{1}) to ({2},{3})", start.x, start.y, goal.x, goal.y);
 
             try
             {
@@ -338,8 +338,8 @@ namespace CoveoBlitz.RandomBot
                     if (getDistance(currentVisited.current, goal) == 0)
                     {
                         string direction = Restitute(start, currentVisited);
-                        Console.WriteLine("Path found! Going {0}", direction);
-                        return direction;
+                        //Console.WriteLine("Path found! Going {0}", direction);
+                        return new Tuple<string, int>(direction, currentVisited.weight);
                     }
                     else
                     {
@@ -354,7 +354,7 @@ namespace CoveoBlitz.RandomBot
             }
 
             Console.WriteLine("No path found!");
-            return Direction.Stay;
+            return new Tuple<string, int>(Direction.Stay, 0);
         }
 
         private string Restitute(Pos start, PathCoord foundPath)
@@ -447,6 +447,13 @@ namespace CoveoBlitz.RandomBot
                 pc.previousDirection = previousDirection;
 
                 pc.heuristic = pc.weight + getDistance(current, goal);
+
+                // Void path if it would kill us
+                if (state.myHero.life < pc.weight)
+                {
+                    return null;
+                }
+
                 return pc;
 
             }
