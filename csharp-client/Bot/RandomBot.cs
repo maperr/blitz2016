@@ -33,74 +33,98 @@ namespace CoveoBlitz.RandomBot
         /// <returns></returns>
         public string Move(GameState state)
         {
-
+            return CalculatePath(state, state.heroes[1].pos);
         }
 
-        private string closesPath(GameState state, Pos start, Pos goal)
+        private string CalculatePath(GameState state, Pos goal)
         {
-            List<PathCoord> visited = new List<PathCoord>();
-            List<PathCoord> availableTiles = new List<PathCoord>();
+            Pos start = state.myHero.pos;
 
-            var first = createPathCoord(start, null, state, goal);
-            visited.Add(first);
-            availableTiles.Add(first);
-
-            while (availableTiles.Any())
+            try
             {
-                // Sort availableTiles
-                availableTiles.Sort((f1, f2) => f1.heuristic.CompareTo(f2.heuristic));
+                List<PathCoord> visited = new List<PathCoord>();
+                List<PathCoord> availableTiles = new List<PathCoord>();
 
-                var next = availableTiles.First(); // todo sort by heuristic
+                var first = createPathCoord(start, null, state, goal, null);
+                visited.Add(first);
+                availableTiles.Add(first);
 
-                if (next.current == goal)
+                while (availableTiles.Any())
                 {
-                    return Restitute(start, next);
-                }
-                else
-                {
-                    var spreadFrom = 
+                    // Sort availableTiles
+                    availableTiles.Sort((f1, f2) => f1.heuristic.CompareTo(f2.heuristic));
+
+                    var currentVisited = availableTiles.First(); // todo sort by heuristic
+
+                    if (currentVisited.current == goal)
+                    {
+                        Console.WriteLine("Path found!");
+                        return Restitute(start, currentVisited);
+                    }
+                    else
+                    {
+                        var spreadFrom = getAvailableCoords(currentVisited, state, goal);
+                        availableTiles.AddRange(spreadFrom);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            Console.WriteLine("No path found!");
+            return Direction.Stay;
         }
 
         private string Restitute(Pos start, PathCoord foundPath)
         {
+            while (foundPath != null)
+            {
+                if (getDistance(start, foundPath.current) == 1)
+                {
+                    return foundPath.previousDirection;
+                }
+                foundPath = foundPath.previous;
+            }
 
+            Console.WriteLine("Error with restitute");
+            return Direction.Stay;
         }
 
 
         private List<PathCoord> getAvailableCoords(PathCoord current, GameState state, Pos goal)
         {
-            PathCoord up = createPathCoord(new Pos() {x = current.current.x, y = current.current.y + 1}, current, state,
-                goal);
-            PathCoord down = createPathCoord(new Pos() { x = current.current.x, y = current.current.y - 1 }, current, state,
-                goal);
-            PathCoord left = createPathCoord(new Pos() { x = current.current.x - 1, y = current.current.y }, current, state,
-                goal);
-            PathCoord right = createPathCoord(new Pos() { x = current.current.x + 1, y = current.current.y }, current, state,
-                goal);
+            PathCoord east = createPathCoord(new Pos() { x = current.current.x, y = current.current.y + 1 }, current, state,
+                goal, Direction.East);
+            PathCoord west = createPathCoord(new Pos() { x = current.current.x, y = current.current.y - 1 }, current, state,
+                goal, Direction.West);
+            PathCoord north = createPathCoord(new Pos() { x = current.current.x - 1, y = current.current.y }, current, state,
+                goal, Direction.North);
+            PathCoord south = createPathCoord(new Pos() { x = current.current.x + 1, y = current.current.y }, current, state,
+                goal, Direction.South);
 
             var rc = new List<PathCoord>();
-            if (up != null)
+            if (east != null)
             {
-                rc.Add(up);
+                rc.Add(east);
             }
-            if (down != null)
+            if (west != null)
             {
-                rc.Add(down);
+                rc.Add(west);
             }
-            if (left != null)
+            if (north != null)
             {
-                rc.Add(left);
+                rc.Add(north);
             }
-            if (right != null)
+            if (south != null)
             {
-                rc.Add(right);
+                rc.Add(south);
             }
             return rc;
-        } 
+        }
 
-        private PathCoord createPathCoord(Pos current, PathCoord previous, GameState state, Pos goal)
+        private PathCoord createPathCoord(Pos current, PathCoord previous, GameState state, Pos goal, string previousDirection)
         {
             PathCoord pc = new PathCoord();
 
@@ -122,6 +146,9 @@ namespace CoveoBlitz.RandomBot
             {
                 pc.weight += 1;
             }
+            pc.current = current;
+            pc.previous = previous;
+            pc.previousDirection = previousDirection;
 
             pc.heuristic = pc.weight + getDistance(current, goal);
             return pc;

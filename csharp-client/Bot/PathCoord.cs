@@ -10,9 +10,11 @@ namespace Coveo.Bot
     public class PathCoord
     {
         public Pos current;
-        public Pos previous;
+        public PathCoord previous;
 
         public int heuristic;
         public int weight;
+
+        public string previousDirection;
     }
 }

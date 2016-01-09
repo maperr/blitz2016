@@ -5,3 +5,6 @@ C:\Users\Konstantin\Downloads\csharp-client\csharp-client\obj\Debug\mybot.exe
 C:\Users\Konstantin\Downloads\csharp-client\csharp-client\obj\Debug\mybot.pdb
 C:\Users\Mathieu\Programmation\Hackaton\BlitzCoveo\csharp-client\obj\Debug\mybot.exe
 C:\Users\Mathieu\Programmation\Hackaton\BlitzCoveo\csharp-client\obj\Debug\mybot.pdb
+C:\Users\Mathieu\Programmation\Hackaton\BlitzCoveo\csharp-client\bin\Debug\mybot.exe
+C:\Users\Mathieu\Programmation\Hackaton\BlitzCoveo\csharp-client\bin\Debug\mybot.pdb
+C:\Users\Mathieu\Programmation\Hackaton\BlitzCoveo\csharp-client\obj\Debug\MyBot.csprojResolveAssemblyReference.cache
