@@ -82,7 +82,7 @@ namespace CoveoBlitz.RandomBot
                     return Direction.East;
             }
 
-            if (Gold > 1 && Life < 65 && !(currentState is AttackWinner))
+            if (Gold > 1 && Life < 65)
             {
                 //Check for healing
                 if (board.At(north) == Tile.TAVERN)
