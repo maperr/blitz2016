@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Coveo.Bot;
+using Coveo.StateMachine;
 using Microsoft.Win32;
 
 namespace CoveoBlitz.RandomBot
@@ -28,6 +29,18 @@ namespace CoveoBlitz.RandomBot
 
         public void Shutdown()
         {
+        }
+
+
+        // Exemple de state machine
+
+        private IState currentState = new CaptureMine();
+
+        private string proofOnconcept(GameState state)
+        {
+            currentState = currentState.CalculateNextState(state, this);
+            var nextGoal = currentState.GetGoal(state, this);
+            return CalculatePath(state, nextGoal);
         }
 
         public string Move(GameState state)
@@ -83,7 +96,23 @@ namespace CoveoBlitz.RandomBot
                     return Direction.East;
             }
 
+
+            return proofOnconcept(state);
+            /*
+            //// Check if life enough to subsist
+            //if (Life < CostToTavern + Constant.LifeDrainOnHit)
+            //{
+            //    // Pathfind to tavern
+
+            //}
+            //else
+            //{
+            //    // Pathfind to Mine
+            //}
+
+=======
             ///TROUVER BUT
+>>>>>>> c692b213f3f0058df885982c589f64a1cc264a19
            
             // Target player with maximum mines
             var MaxMinePlayer = new Pos();
@@ -157,6 +186,8 @@ namespace CoveoBlitz.RandomBot
 
             Console.Write("No choices");
             return Direction.Stay;
+
+            */
         }
         
         private bool BadChoice(string direction, Pos pos, Tile[][] board)
@@ -432,7 +463,7 @@ namespace CoveoBlitz.RandomBot
             switch (tile)
             {
                 case Tile.SPIKES:
-                    cost = 5;
+                    cost = 10;
                     break;
                 default:
                     cost = 1;
