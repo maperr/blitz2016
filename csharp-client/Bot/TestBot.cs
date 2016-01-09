@@ -17,7 +17,6 @@ namespace CoveoBlitz.RandomBot
         public int Life { get; set; }
         public int Gold { get; set; }
         public int MyHeroId { get; set; }
-        public Tile MyHeroEnum { get; set; }
         public List<Pos> Mines = new List<Pos>();
         public List<Pos> Tavernes = new List<Pos>();
 
@@ -46,6 +45,7 @@ namespace CoveoBlitz.RandomBot
 
         public string Move(GameState state)
         {
+
             // Update Info
             Life = state.myHero.life;
             Gold = state.myHero.gold;
@@ -57,16 +57,15 @@ namespace CoveoBlitz.RandomBot
             {
                 GetImportantPos(state.board);
                 MyHeroId = state.myHero.id;
-                MyHeroEnum = (Tile)(2 + MyHeroId);
                 setup = true;
             }
 
             //Console.WriteLine(pos.x + ", "+ pos.y);
 
-            Pos north = new Pos { x = pos.x - 1, y = pos.y };
-            Pos south = new Pos { x = pos.x + 1, y = pos.y };
-            Pos east = new Pos { x = pos.x, y = pos.y + 1 };
-            Pos west = new Pos { x = pos.x, y = pos.y - 1 };
+            Pos north = new Pos {x = pos.x-1, y = pos.y};
+            Pos south = new Pos {x = pos.x+1, y = pos.y};
+            Pos east = new Pos {x = pos.x, y = pos.y+1};
+            Pos west = new Pos {x = pos.x, y = pos.y-1};
 
             //Console.WriteLine(board.At(north).ToString() + ", "+ board.At(south).ToString() + ", " + board.At(east).ToString() + ", " + board.At(west).ToString());
 
@@ -84,7 +83,7 @@ namespace CoveoBlitz.RandomBot
                     return Direction.East;
             }
 
-            if (Gold > 1 && Life < 65)
+            if (Gold > 1 && Life <= 75)
             {
                 //Check for healing
                 if (board.At(north) == Tile.TAVERN)
@@ -99,123 +98,7 @@ namespace CoveoBlitz.RandomBot
 
 
             return proofOnconcept(state);
-            /*
-            //// Check if life enough to subsist
-            //if (Life < CostToTavern + Constant.LifeDrainOnHit)
-            //{
-            //    // Pathfind to tavern
-
-            //}
-            //else
-            //{
-            //    // Pathfind to Mine
-            //}
-
-=======
-            ///TROUVER BUT
->>>>>>> c692b213f3f0058df885982c589f64a1cc264a19
-           
-            // Target player with maximum mines
-            var MaxMinePlayer = new Pos();
-            var MaxMine = 0;
-            var enemyLife = 0;
-            foreach (var hero in state.heroes)
-            {
-                if (hero.gold > MaxMine)
-                {
-                    if (hero.pos != state.myHero.pos)
-                    {
-                        MaxMine = hero.mineCount;
-                        MaxMinePlayer = hero.pos;
-                        enemyLife = hero.life;
-                    }
-                }
-            }
-
-            var meilleureTaverne = GetClosestTavern(pos);
-            var meilleureMine = GetClosestMine(pos, state.board);
-
-
-            if (MaxMine > state.myHero.mineCount + 1 &&
-                getDistance(MaxMinePlayer, pos) < getDistance(meilleureMine, meilleureMine))
-            {
-                Console.WriteLine("Heading towards enemy or tavern");
-                return CalculatePath(state, enemyLife < state.myHero.life ? MaxMinePlayer : meilleureTaverne);
-            }
-
-            if (Life > 40)
-            {
-                Console.WriteLine("Heading towards mine");
-
-                return CalculatePath(state, meilleureMine);
-            }
-
-            Console.WriteLine("Heading towards tavern");
-
-            return CalculatePath(state, meilleureTaverne);
-
-            //Check si assez vie, alors pathfind to
-            string direction = string.Empty;
-            int count = 0;
-            do
-            {
-                var newRand = random.Next(0, 4);
-                Console.WriteLine(newRand);
-                switch (newRand)
-                {
-                    case 0:
-                        direction = Direction.East;
-                        break;
-
-                    case 1:
-                        direction = Direction.West;
-                        break;
-
-                    case 2:
-                        direction = Direction.North;
-                        break;
-
-                    case 3:
-                        direction = Direction.South;
-                        break;
-                }
-                count++;
-            } while (BadChoice(direction, pos, board) && count < 4);
-            if (count < 4)
-                return direction;
-
-
-            Console.Write("No choices");
-            return Direction.Stay;
-
-            */
         }
-
-        private bool BadChoice(string direction, Pos pos, Tile[][] board)
-        {
-            Pos movPos = pos;
-            switch (direction)
-            {
-                case Direction.South:
-                    movPos.x++;
-                    break;
-                case Direction.North:
-                    movPos.x--;
-                    break;
-                case Direction.West:
-                    movPos.y--;
-                    break;
-                case Direction.East:
-                    movPos.y++;
-                    break;
-
-            }
-            Tile movTile = board.At(movPos);
-            return movTile == Tile.SPIKES || movTile == Tile.IMPASSABLE_WOOD || (movTile <= Tile.GOLD_MINE_4 && movTile >= Tile.GOLD_MINE_NEUTRAL) || movTile == Tile.TAVERN;
-        }
-
-
-
 
         public bool OurMine(Tile tile, int hero)
         {
@@ -255,11 +138,10 @@ namespace CoveoBlitz.RandomBot
                 {
                     if (board[i][j] >= Tile.GOLD_MINE_NEUTRAL && board[i][j] <= Tile.GOLD_MINE_4)
                     {
-                        Mines.Add(new Pos() { x = j, y = i });
-                    }
-                    else if (board[i][j] == Tile.TAVERN)
+                        Mines.Add(new Pos() {x = j, y =i});
+                    }else if (board[i][j] == Tile.TAVERN)
                     {
-                        Tavernes.Add(new Pos() { x = j, y = i });
+                        Tavernes.Add(new Pos() {x = j, y = i});
                     }
                 }
             }
@@ -443,7 +325,7 @@ namespace CoveoBlitz.RandomBot
                     pc.weight = previous.weight; // to modify
                 }
 
-                pc.weight += getCost(state, current);
+                pc.weight += getCost(state.board.At(current));
                 pc.current = current;
                 pc.previous = previous;
                 pc.previousDirection = previousDirection;
@@ -451,7 +333,7 @@ namespace CoveoBlitz.RandomBot
                 pc.heuristic = pc.weight + getDistance(current, goal);
 
                 // Void path if it would kill us
-                if (CanKill(currentTile) && state.myHero.life < pc.weight)
+                if (state.myHero.life < pc.weight)
                 {
                     return null;
                 }
@@ -466,85 +348,7 @@ namespace CoveoBlitz.RandomBot
             }
         }
 
-        private bool CanKill(Tile tile)
-        {
-            if (tile == Tile.SPIKES || (tile >= Tile.HERO_1 && tile <= Tile.HERO_4))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private int getCost(GameState state, Pos pos)
-        {
-            int cost = 0;
-
-            // Check if next to ennemy
-            if (isNextToEnnemy(state, pos))
-            {
-                cost += 25;
-            }
-
-            cost += getTileCost(state.board.At(pos));
-
-            return cost;
-        }
-
-        private bool isNextToEnnemy(GameState state, Pos pos)
-        {
-            foreach (var currentPos in GetAdjacent(state, pos))
-            {
-                if (isTileEnnemy(state, state.board.At(currentPos)))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool isTileEnnemy(GameState state, Tile tile)
-        {
-            if (tile == MyHeroEnum)
-            {
-                return false;
-            }
-            if (tile >= Tile.HERO_1 && tile <= Tile.HERO_4)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private List<Pos> GetAdjacent(GameState state, Pos pos)
-        {
-            var list = new List<Pos>();
-
-            Pos north = new Pos { x = pos.x - 1, y = pos.y };
-            Pos south = new Pos { x = pos.x + 1, y = pos.y };
-            Pos east = new Pos { x = pos.x, y = pos.y + 1 };
-            Pos west = new Pos { x = pos.x, y = pos.y - 1 };
-
-            if (isValid(state, north))
-            {
-                list.Add(north);
-            }
-            if (isValid(state, south))
-            {
-                list.Add(south);
-            }
-            if (isValid(state, east))
-            {
-                list.Add(east);
-            }
-            if (isValid(state, west))
-            {
-                list.Add(west);
-            }
-
-            return list;
-        }
-
-        private int getTileCost(Tile tile)
+        private int getCost(Tile tile)
         {
             int cost;
             switch (tile)

@@ -72,7 +72,6 @@
     <Compile Include="StateMachine\GoHeal.cs" />
     <Compile Include="StateMachine\IState.cs" />
     <Compile Include="StateMachine\ProtectSelf.cs" />
-    <Compile Include="State\State.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

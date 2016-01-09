@@ -9,11 +9,35 @@ namespace Coveo.StateMachine
     {
         public override IState CalculateNextState(GameState state, TestBot bot)
         {
-            if (state.myHero.mineCount > 10000)
+            // Target Enemy ?
+
+            // if (costToMine + 25 >= life)
+            // Heal
+
+            // else
+            // mine
+
+            // if capturing a mine will kill you
+            if(state.myHero.life < 26)
+                return new GoHeal();
+
+
+            // Max mine of hero
+            var maxMines = 0;
+            foreach (var hero in state.heroes)
             {
-                Console.WriteLine("Switching to attacking hero");
-                return new AttackWinner();
+                if (maxMines < hero.mineCount)
+                    maxMines = hero.mineCount;
             }
+
+            if (state.myHero.mineCount + 3 <= maxMines)
+            {
+                if(state.myHero.life >= 75)
+                    return new AttackWinner();
+                else
+                    return new GoHeal();
+            }
+
             return this;
         }
 
