@@ -7,7 +7,7 @@ namespace Coveo.StateMachine
     {
         public override Pos GetGoal(GameState state, TestBot bot)
         {
-            return null;
+            return bot.GetClosestTavern(state.myHero.pos);
         }
     }
 }
