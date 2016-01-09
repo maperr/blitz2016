@@ -38,15 +38,15 @@ namespace CoveoBlitz.RandomBot
 
         private string CalculatePath(GameState state, Pos goal)
         {
+            Console.WriteLine("Begining calculating path");
             Pos start = state.myHero.pos;
 
             try
             {
-                List<PathCoord> visited = new List<PathCoord>();
+                List<Pos> visited = new List<Pos>();
                 List<PathCoord> availableTiles = new List<PathCoord>();
 
                 var first = createPathCoord(start, null, state, goal, null);
-                visited.Add(first);
                 availableTiles.Add(first);
 
                 while (availableTiles.Any())
@@ -54,7 +54,15 @@ namespace CoveoBlitz.RandomBot
                     // Sort availableTiles
                     availableTiles.Sort((f1, f2) => f1.heuristic.CompareTo(f2.heuristic));
 
-                    var currentVisited = availableTiles.First(); // todo sort by heuristic
+                    var currentVisited = availableTiles.First();
+                    availableTiles.Remove(currentVisited);
+
+                    if (visited.Contains(currentVisited.current))
+                    {
+                        continue;
+                    }
+
+                    visited.Add(currentVisited.current);
 
                     if (currentVisited.current == goal)
                     {
@@ -105,23 +113,34 @@ namespace CoveoBlitz.RandomBot
                 goal, Direction.South);
 
             var rc = new List<PathCoord>();
-            if (east != null)
+            if (east != null && isValid(state, east))
             {
                 rc.Add(east);
             }
-            if (west != null)
+            if (west != null && isValid(state, west))
             {
                 rc.Add(west);
             }
-            if (north != null)
+            if (north != null && isValid(state, north))
             {
                 rc.Add(north);
             }
-            if (south != null)
+            if (south != null && isValid(state, south))
             {
                 rc.Add(south);
             }
             return rc;
+        }
+
+        private bool isValid(GameState state, PathCoord coordToValidate)
+        {
+            if (coordToValidate.current.x < 0 || coordToValidate.current.x >= state.board.GetLength(0) ||
+                coordToValidate.current.y < 0 || coordToValidate.current.y >= state.board.GetLength(1))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private PathCoord createPathCoord(Pos current, PathCoord previous, GameState state, Pos goal, string previousDirection)
