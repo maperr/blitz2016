@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
+using System.Threading;
 using Coveo.Bot;
 
 namespace CoveoBlitz.RandomBot
@@ -38,8 +39,9 @@ namespace CoveoBlitz.RandomBot
 
         private string CalculatePath(GameState state, Pos goal)
         {
-            Console.WriteLine("Begining calculating path");
             Pos start = state.myHero.pos;
+
+            Console.WriteLine("Begining calculating path from ({0},{1}) to ({2},{3})", start.x, start.y, goal.x, goal.y);
 
             try
             {
@@ -61,6 +63,8 @@ namespace CoveoBlitz.RandomBot
                     {
                         continue;
                     }
+
+                    Console.WriteLine("Visiting ({0},{1}) with heuristic {2}", currentVisited.current.x, currentVisited.current.y, currentVisited.heuristic);
 
                     visited.Add(currentVisited.current);
 
@@ -113,29 +117,31 @@ namespace CoveoBlitz.RandomBot
                 goal, Direction.South);
 
             var rc = new List<PathCoord>();
-            if (east != null && isValid(state, east))
+            if (east != null)
             {
                 rc.Add(east);
             }
-            if (west != null && isValid(state, west))
+            if (west != null)
             {
                 rc.Add(west);
             }
-            if (north != null && isValid(state, north))
+            if (north != null)
             {
                 rc.Add(north);
             }
-            if (south != null && isValid(state, south))
+            if (south != null)
             {
                 rc.Add(south);
             }
             return rc;
         }
 
-        private bool isValid(GameState state, PathCoord coordToValidate)
+        private bool isValid(GameState state, Pos coordToValidate)
         {
-            if (coordToValidate.current.x < 0 || coordToValidate.current.x >= state.board.GetLength(0) ||
-                coordToValidate.current.y < 0 || coordToValidate.current.y >= state.board.GetLength(1))
+            int size = state.board.GetLength(0);
+
+            if (coordToValidate.x < 0 || coordToValidate.x >= size ||
+                coordToValidate.y < 0 || coordToValidate.y >= size)
             {
                 return false;
             }
@@ -145,32 +151,54 @@ namespace CoveoBlitz.RandomBot
 
         private PathCoord createPathCoord(Pos current, PathCoord previous, GameState state, Pos goal, string previousDirection)
         {
-            PathCoord pc = new PathCoord();
-
-            if (state.board[current.x][current.y] == Tile.IMPASSABLE_WOOD)
+            try
             {
-                return null;
-            }
+                if (!isValid(state, current))
+                {
+                    return null;
+                }
 
-            if (previous != null)
-            {
-                pc.weight = previous.weight; // to modify
-            }
+                PathCoord pc = new PathCoord();
 
-            if (state.board[current.x][current.y] == Tile.SPIKES)
-            {
-                pc.weight += 3; // to modify
-            }
-            else
-            {
-                pc.weight += 1;
-            }
-            pc.current = current;
-            pc.previous = previous;
-            pc.previousDirection = previousDirection;
+                if (state.board[current.x][current.y] == Tile.IMPASSABLE_WOOD)
+                {
+                    return null;
+                }
 
-            pc.heuristic = pc.weight + getDistance(current, goal);
-            return pc;
+                if (previous != null)
+                {
+                    pc.weight = previous.weight; // to modify
+                }
+
+                pc.weight += getCost(state.board[current.y][current.x]);
+                pc.current = current;
+                pc.previous = previous;
+                pc.previousDirection = previousDirection;
+
+                pc.heuristic = pc.weight + getDistance(current, goal);
+                return pc;
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error with bound");
+                throw e;
+            }
+        }
+
+        private int getCost(Tile tile)
+        {
+            int cost;
+            switch (tile)
+            {
+                case Tile.SPIKES:
+                    cost = 5;
+                    break;
+                default:
+                    cost = 1;
+                    break;
+            }
+            return cost;
         }
 
         private int getDistance(Pos a, Pos b)
