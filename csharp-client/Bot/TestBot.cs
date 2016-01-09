@@ -109,11 +109,18 @@ namespace CoveoBlitz.RandomBot
             if (MaxMine > state.myHero.mineCount + 1 &&
                 getDistance(MaxMinePlayer, pos) < getDistance(meilleureMine, meilleureMine))
             {
+                Console.WriteLine("Heading towards enemy or tavern");
                 return CalculatePath(state, enemyLife < state.myHero.life ? MaxMinePlayer : meilleureTaverne);
             }
 
             if (Life > 40)
+            {
+                Console.WriteLine("Heading towards mine");
+
                 return CalculatePath(state, meilleureMine);
+            }
+
+            Console.WriteLine("Heading towards tavern");
 
             return CalculatePath(state, meilleureTaverne);
 
@@ -216,10 +223,10 @@ namespace CoveoBlitz.RandomBot
                 {
                     if (board[i][j] >= Tile.GOLD_MINE_NEUTRAL && board[i][j] <= Tile.GOLD_MINE_4)
                     {
-                        Mines.Add(new Pos() {x = i, y =j});
+                        Mines.Add(new Pos() {x = j, y =i});
                     }else if (board[i][j] == Tile.TAVERN)
                     {
-                        Tavernes.Add(new Pos() {x = i, y = j});
+                        Tavernes.Add(new Pos() {x = j, y = i});
                     }
                 }
             }
