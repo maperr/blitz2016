@@ -5,3 +5,4 @@ csharp-client/bin/Debug/mybot.vshost.exe.manifest
 csharp-client/.vs/MyBot/v14/.suo
 csharp-client/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
 csharp-client/obj/Debug/MyBot.csproj.FileListAbsolute.txt
+*.suo
