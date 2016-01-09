@@ -42,27 +42,37 @@ namespace CoveoBlitz.RandomBot
 
             Console.WriteLine(pos.x + ", "+ pos.y);
 
-            // If adjacent mine present
-            if (pos.x > 1 && MineToClaim(board[pos.x - 1][pos.y], state.myHero.id))
-            {
-                Console.WriteLine("North to "+ board[pos.x - 1][pos.y].ToString());
-                return Direction.North;
-            }
-            if (pos.x < board.Length && MineToClaim(board[pos.x + 1][pos.y], state.myHero.id))
-            {
-                Console.WriteLine("south to " + board[pos.x + 1][pos.y].ToString());
-                return Direction.South;
-            }
-            if (pos.y > 1 && MineToClaim(board[pos.x][pos.y - 1], state.myHero.id))
-            {
-                Console.WriteLine("west to " + board[pos.x][pos.y -1].ToString());
+            Pos north = new Pos {x = pos.x-1, y = pos.y};
+            Pos south = new Pos {x = pos.x+1, y = pos.y};
+            Pos east = new Pos {x = pos.x, y = pos.y+1};
+            Pos west = new Pos {x = pos.x, y = pos.y-1};
 
-                return Direction.East;
-            }
-            if (pos.y < board[0].Length && MineToClaim(board[pos.x][pos.y + 1], state.myHero.id))
+            Console.WriteLine(board.At(north).ToString() + ", "+ board.At(south).ToString() + ", " + board.At(east).ToString() + ", " + board.At(west).ToString());
+
+            if (Life > 25)
             {
-                Console.WriteLine("east to " + board[pos.x][pos.y +1 ].ToString());
-                return Direction.West;
+
+                // If adjacent mine present
+                if (MineToClaim(board.At(north), state.myHero.id))
+                    return Direction.North;
+                if (MineToClaim(board.At(south), state.myHero.id))
+                    return Direction.South;
+                if (MineToClaim(board.At(west), state.myHero.id))
+                    return Direction.West;
+                if (MineToClaim(board.At(east), state.myHero.id))
+                    return Direction.East;
+            }
+            else if(Gold > 1)
+            {
+                //Check for healing
+                if (board.At(north) == Tile.TAVERN)
+                    return Direction.North;
+                if (board.At(south) == Tile.TAVERN)
+                    return Direction.South;
+                if (board.At(west) == Tile.TAVERN)
+                    return Direction.West;
+                if (board.At(east) == Tile.TAVERN)
+                    return Direction.East;
             }
 
             // Check if life enough to subsist
@@ -101,8 +111,8 @@ namespace CoveoBlitz.RandomBot
                         break;
                 }
                 count ++;
-            } while (BadChoice(direction, pos, board) && count < 25);
-            if(count < 25)
+            } while (BadChoice(direction, pos, board) && count < 4);
+            if(count < 4)
                 return direction;
 
 
@@ -122,18 +132,15 @@ namespace CoveoBlitz.RandomBot
                     movPos.x --;
                     break;
                 case Direction.West:
-                    movPos.y++;
+                    movPos.y--;
                     break;
                 case Direction.East:
-                    movPos.y--;
+                    movPos.y++;
                     break;
 
             }
-            if(pos.x < 0 || pos.y < 0 || pos.x > board.Length || pos.y > board[0].Length)
-                return false;
-
-            Tile movTile = board[movPos.x][movPos.y];
-            return movTile == Tile.SPIKES || movTile == Tile.IMPASSABLE_WOOD;
+            Tile movTile = board.At(movPos);
+            return movTile == Tile.SPIKES || movTile == Tile.IMPASSABLE_WOOD || (movTile <= Tile.GOLD_MINE_4 && movTile >=Tile.GOLD_MINE_NEUTRAL) || movTile == Tile.TAVERN;
         }
     
 
