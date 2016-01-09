@@ -44,59 +44,67 @@ namespace CoveoBlitz.RandomBot
 
         public string Move(GameState state)
         {
-            // Update Info
-            Life = state.myHero.life;
-            Gold = state.myHero.gold;
-            var pos = state.myHero.pos;
-            var board = state.board;
-
-            // Initial setup
-            if (!setup)
+            try
             {
-                GetImportantPos(state.board);
-                MyHeroId = state.myHero.id;
-                MyHeroEnum = (Tile) (2 + MyHeroId);
-                setup = true;
+                // Update Info
+                Life = state.myHero.life;
+                Gold = state.myHero.gold;
+                var pos = state.myHero.pos;
+                var board = state.board;
+
+                // Initial setup
+                if (!setup)
+                {
+                    GetImportantPos(state.board);
+                    MyHeroId = state.myHero.id;
+                    MyHeroEnum = (Tile) (2 + MyHeroId);
+                    setup = true;
+                }
+
+                //Console.WriteLine(pos.x + ", "+ pos.y);
+
+                Pos north = new Pos {x = pos.x - 1, y = pos.y};
+                Pos south = new Pos {x = pos.x + 1, y = pos.y};
+                Pos east = new Pos {x = pos.x, y = pos.y + 1};
+                Pos west = new Pos {x = pos.x, y = pos.y - 1};
+
+                //Console.WriteLine(board.At(north).ToString() + ", "+ board.At(south).ToString() + ", " + board.At(east).ToString() + ", " + board.At(west).ToString());
+
+                if (Life > 25)
+                {
+
+                    // If adjacent mine present
+                    if (MineToClaim(board.At(north)))
+                        return Direction.North;
+                    if (MineToClaim(board.At(south)))
+                        return Direction.South;
+                    if (MineToClaim(board.At(west)))
+                        return Direction.West;
+                    if (MineToClaim(board.At(east)))
+                        return Direction.East;
+                }
+
+                if (Gold > 1 && Life < 65)
+                {
+                    //Check for healing
+                    if (board.At(north) == Tile.TAVERN)
+                        return Direction.North;
+                    if (board.At(south) == Tile.TAVERN)
+                        return Direction.South;
+                    if (board.At(west) == Tile.TAVERN)
+                        return Direction.West;
+                    if (board.At(east) == Tile.TAVERN)
+                        return Direction.East;
+                }
+
+
+                return proofOnconcept(state);
             }
-
-            //Console.WriteLine(pos.x + ", "+ pos.y);
-
-            Pos north = new Pos {x = pos.x - 1, y = pos.y};
-            Pos south = new Pos {x = pos.x + 1, y = pos.y};
-            Pos east = new Pos {x = pos.x, y = pos.y + 1};
-            Pos west = new Pos {x = pos.x, y = pos.y - 1};
-
-            //Console.WriteLine(board.At(north).ToString() + ", "+ board.At(south).ToString() + ", " + board.At(east).ToString() + ", " + board.At(west).ToString());
-
-            if (Life > 25)
+            catch (Exception e)
             {
-
-                // If adjacent mine present
-                if (MineToClaim(board.At(north)))
-                    return Direction.North;
-                if (MineToClaim(board.At(south)))
-                    return Direction.South;
-                if (MineToClaim(board.At(west)))
-                    return Direction.West;
-                if (MineToClaim(board.At(east)))
-                    return Direction.East;
+                Console.WriteLine(e);
+                throw e;
             }
-
-            if (Gold > 1 && Life < 65)
-            {
-                //Check for healing
-                if (board.At(north) == Tile.TAVERN)
-                    return Direction.North;
-                if (board.At(south) == Tile.TAVERN)
-                    return Direction.South;
-                if (board.At(west) == Tile.TAVERN)
-                    return Direction.West;
-                if (board.At(east) == Tile.TAVERN)
-                    return Direction.East;
-            }
-
-
-            return proofOnconcept(state);
         }
 
 
@@ -297,10 +305,10 @@ namespace CoveoBlitz.RandomBot
 
         private bool isValid(GameState state, Pos coordToValidate)
         {
-            int size = state.board.GetLength(0);
+            
 
-            if (coordToValidate.x < 0 || coordToValidate.x >= size ||
-                coordToValidate.y < 0 || coordToValidate.y >= size)
+            if (coordToValidate.x < 0 || coordToValidate.x > state.board.Length ||
+                coordToValidate.y < 0 || coordToValidate.y > state.board[0].Length)
             {
                 return false;
             }
@@ -342,7 +350,7 @@ namespace CoveoBlitz.RandomBot
                 pc.heuristic = pc.weight + getDistance(current, goal);
 
                 // Void path if it would kill us
-                if (CanKill(currentTile) && state.myHero.life < pc.weight)
+                if ( CanKill(currentTile) && state.myHero.life < pc.weight)
                 {
                     return null;
                 }
@@ -383,9 +391,9 @@ namespace CoveoBlitz.RandomBot
 
         private bool isNextToEnnemy(GameState state, Pos pos)
         {
-            foreach (var currentPos in GetAdjacent(state, pos))
+            foreach (var currentPos in GetAdjacent(state, pos).ToList())
             {
-                if (isTileEnnemy(state, state.board.At(currentPos)))
+                if (isTileEnnemy(state, state.board.At(currentPos))&& getDistance(currentPos, pos) < 2)
                 {
                     return true;
                 }
