@@ -17,7 +17,7 @@ namespace CoveoBlitz.RandomBot
 
         public void Setup()
         {
-               
+
         }
 
         public void Shutdown()
@@ -40,16 +40,30 @@ namespace CoveoBlitz.RandomBot
             var pos = state.myHero.pos;
             var board = state.board;
 
+            Console.WriteLine(pos.x + ", "+ pos.y);
 
             // If adjacent mine present
             if (pos.x > 1 && MineToClaim(board[pos.x - 1][pos.y], state.myHero.id))
+            {
+                Console.WriteLine("North to "+ board[pos.x - 1][pos.y].ToString());
                 return Direction.North;
+            }
             if (pos.x < board.Length && MineToClaim(board[pos.x + 1][pos.y], state.myHero.id))
+            {
+                Console.WriteLine("south to " + board[pos.x + 1][pos.y].ToString());
                 return Direction.South;
+            }
             if (pos.y > 1 && MineToClaim(board[pos.x][pos.y - 1], state.myHero.id))
-                return Direction.West;
-            if (pos.y < board[0].Length && MineToClaim(board[pos.x][pos.y + 1], state.myHero.id))
+            {
+                Console.WriteLine("west to " + board[pos.x][pos.y -1].ToString());
+
                 return Direction.East;
+            }
+            if (pos.y < board[0].Length && MineToClaim(board[pos.x][pos.y + 1], state.myHero.id))
+            {
+                Console.WriteLine("east to " + board[pos.x][pos.y +1 ].ToString());
+                return Direction.West;
+            }
 
             // Check if life enough to subsist
             if (Life < CostToTavern + Constant.LifeDrainOnHit)
@@ -62,32 +76,68 @@ namespace CoveoBlitz.RandomBot
                 // Pathfind to Mine
             }
 
-
-            switch (random.Next(0, 5))
+            string direction = string.Empty;
+            int count = 0;
+            do
             {
-                case 0:
-                    return Direction.East;
-                    break;
+                var newRand = random.Next(0, 4);
+                Console.WriteLine(newRand);
+                switch (newRand)
+                {
+                    case 0:
+                        direction = Direction.East;
+                        break;
 
-                case 1:
-                    return Direction.West;
-                    break;
+                    case 1:
+                        direction = Direction.West;
+                        break;
 
-                case 2:
-                    return Direction.North;
-                    break;
+                    case 2:
+                        direction = Direction.North;
+                        break;
 
-                case 3:
-                    return Direction.South;
-                    break;
+                    case 3:
+                        direction = Direction.South;
+                        break;
+                }
+                count ++;
+            } while (BadChoice(direction, pos, board) && count < 25);
+            if(count < 25)
+                return direction;
 
-                default:
-                    return Direction.Stay;
-            }
 
+            Console.Write("No choices");
             return Direction.Stay;
         }
-       
+
+        private bool BadChoice(string direction, Pos pos, Tile[][] board)
+        {
+            Pos movPos = pos;
+            switch (direction)
+            {
+                case Direction.South:
+                    movPos.x++;
+                    break;
+                case Direction.North:
+                    movPos.x --;
+                    break;
+                case Direction.West:
+                    movPos.y++;
+                    break;
+                case Direction.East:
+                    movPos.y--;
+                    break;
+
+            }
+            if(pos.x < 0 || pos.y < 0 || pos.x > board.Length || pos.y > board[0].Length)
+                return false;
+
+            Tile movTile = board[movPos.x][movPos.y];
+            return movTile == Tile.SPIKES || movTile == Tile.IMPASSABLE_WOOD;
+        }
+    
+
+
 
         public bool OurMine(Tile tile, int hero)
         {
