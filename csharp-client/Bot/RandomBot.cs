@@ -59,19 +59,20 @@ namespace CoveoBlitz.RandomBot
                     var currentVisited = availableTiles.First();
                     availableTiles.Remove(currentVisited);
 
-                    if (visited.Contains(currentVisited.current))
+                    if (visited.Any(x => x.x == currentVisited.current.x && x.y==currentVisited.current.y))
                     {
                         continue;
                     }
 
-                    Console.WriteLine("Visiting ({0},{1}) with heuristic {2}", currentVisited.current.x, currentVisited.current.y, currentVisited.heuristic);
+                   // Console.WriteLine("Visiting ({0},{1}) with heuristic {2}", currentVisited.current.x, currentVisited.current.y, currentVisited.heuristic);
 
                     visited.Add(currentVisited.current);
 
-                    if (currentVisited.current == goal)
+                    if (getDistance(currentVisited.current, goal) == 0)
                     {
-                        Console.WriteLine("Path found!");
-                        return Restitute(start, currentVisited);
+                        string direction = Restitute(start, currentVisited);
+                        Console.WriteLine("Path found! Going {0}", direction);
+                        return direction;
                     }
                     else
                     {
@@ -93,7 +94,8 @@ namespace CoveoBlitz.RandomBot
         {
             while (foundPath != null)
             {
-                if (getDistance(start, foundPath.current) == 1)
+                int distance = getDistance(start, foundPath.current);
+                if (distance == 1)
                 {
                     return foundPath.previousDirection;
                 }
@@ -160,7 +162,7 @@ namespace CoveoBlitz.RandomBot
 
                 PathCoord pc = new PathCoord();
 
-                if (state.board[current.x][current.y] == Tile.IMPASSABLE_WOOD)
+                if (state.board[current.y][current.x] == Tile.IMPASSABLE_WOOD)
                 {
                     return null;
                 }
