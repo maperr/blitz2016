@@ -30,4 +30,14 @@
     {
         public const int LifeDrainOnHit = 25;
     }
+
+    public static class extensions
+    {
+        public static Tile At(this Tile[][] tiles, Pos pos)
+        {
+            if (pos.x < 0 || pos.y < 0 || pos.x > tiles.Length || pos.y > tiles[0].Length)
+                return Tile.IMPASSABLE_WOOD;
+            return tiles[pos.y][pos.x];
+        }
+    }
 }

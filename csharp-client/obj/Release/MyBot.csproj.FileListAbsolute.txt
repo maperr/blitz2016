@@ -1,0 +1,4 @@
+C:\Users\Konstantin\Documents\blitz2016\csharp-client\bin\Release\mybot.exe
+C:\Users\Konstantin\Documents\blitz2016\csharp-client\bin\Release\mybot.pdb
+C:\Users\Konstantin\Documents\blitz2016\csharp-client\obj\Release\mybot.exe
+C:\Users\Konstantin\Documents\blitz2016\csharp-client\obj\Release\mybot.pdb

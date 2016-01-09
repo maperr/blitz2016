@@ -1,1 +1,4 @@
 csharp-client/bin/Debug/mybot.vshost.exe
+csharp-client/bin/Debug/mybot.vshost.exe.manifest
+*.exe
+*.pdb
