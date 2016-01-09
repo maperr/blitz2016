@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bot\TestBot.cs" />
+    <Compile Include="Bot\PathCoord.cs" />
     <Compile Include="Core\DataContracts.cs" />
     <Compile Include="Core\Enums.cs" />
     <Compile Include="Program.cs" />
@@ -89,7 +90,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
