@@ -25,4 +25,9 @@
         public const string South = "South";
         public const string West = "West";
     }
+
+    public class Constant
+    {
+        public const int LifeDrainOnHit = 25;
+    }
 }

@@ -3,3 +3,8 @@ C:\Users\Konstantin\Downloads\csharp-client\csharp-client\bin\Debug\mybot.pdb
 C:\Users\Konstantin\Downloads\csharp-client\csharp-client\obj\Debug\MyBot.csprojResolveAssemblyReference.cache
 C:\Users\Konstantin\Downloads\csharp-client\csharp-client\obj\Debug\mybot.exe
 C:\Users\Konstantin\Downloads\csharp-client\csharp-client\obj\Debug\mybot.pdb
+C:\Users\Konstantin\Documents\blitz2016\csharp-client\obj\Debug\mybot.exe
+C:\Users\Konstantin\Documents\blitz2016\csharp-client\obj\Debug\mybot.pdb
+C:\Users\Konstantin\Documents\blitz2016\csharp-client\bin\Debug\mybot.exe
+C:\Users\Konstantin\Documents\blitz2016\csharp-client\bin\Debug\mybot.pdb
+C:\Users\Konstantin\Documents\blitz2016\csharp-client\obj\Debug\MyBot.csprojResolveAssemblyReference.cache
