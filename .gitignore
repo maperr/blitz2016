@@ -2,5 +2,9 @@ csharp-client/bin/Debug/mybot.vshost.exe
 csharp-client/bin/Debug/mybot.vshost.exe.manifest
 *.exe
 *.pdb
+<<<<<<< HEAD
 csharp-client/.vs/MyBot/v14/.suo
 csharp-client/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
+=======
+csharp-client/obj/Debug/MyBot.csproj.FileListAbsolute.txt
+>>>>>>> 6a132cb7e1af3a4a9e5d25a1bbf0e36af478d678

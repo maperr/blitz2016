@@ -27,7 +27,7 @@ namespace CoveoBlitz
             string key,
             bool trainingMode,
             string gameId,
-            uint turns = 25,
+            uint turns = 4000,
             string map = null)
         {
             this.botKey = key;
