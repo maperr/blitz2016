@@ -23,7 +23,6 @@ namespace CoveoBlitz.RandomBot
 
         public void Setup()
         {
-
         }
 
         public void Shutdown()
@@ -70,9 +69,8 @@ namespace CoveoBlitz.RandomBot
 
                 //Console.WriteLine(board.At(north).ToString() + ", "+ board.At(south).ToString() + ", " + board.At(east).ToString() + ", " + board.At(west).ToString());
 
-                if (Life > 25)
+                if (Life > 25 && !(currentState is AttackWinner))
                 {
-
                     // If adjacent mine present
                     if (MineToClaim(board.At(north)))
                         return Direction.North;
@@ -108,7 +106,6 @@ namespace CoveoBlitz.RandomBot
         }
 
 
-
         public bool OurMine(Tile tile, int hero)
         {
             bool ours = false;
@@ -130,7 +127,6 @@ namespace CoveoBlitz.RandomBot
             }
 
             return ours;
-
         }
 
         public bool MineToClaim(Tile tile)
@@ -176,7 +172,6 @@ namespace CoveoBlitz.RandomBot
                 }
             }
             return meilleurePos;
-
         }
 
         public Pos GetClosestTavern(Pos pos)
@@ -194,7 +189,6 @@ namespace CoveoBlitz.RandomBot
                 }
             }
             return meilleurePos;
-
         }
 
 
@@ -305,8 +299,6 @@ namespace CoveoBlitz.RandomBot
 
         private bool isValid(GameState state, Pos coordToValidate)
         {
-            
-
             if (coordToValidate.x < 0 || coordToValidate.x > state.board.Length ||
                 coordToValidate.y < 0 || coordToValidate.y > state.board[0].Length)
             {
@@ -350,13 +342,12 @@ namespace CoveoBlitz.RandomBot
                 pc.heuristic = pc.weight + getDistance(current, goal);
 
                 // Void path if it would kill us
-                if ( CanKill(currentTile) && state.myHero.life < pc.weight)
+                if (CanKill(currentTile) && state.myHero.life < pc.weight)
                 {
                     return null;
                 }
 
                 return pc;
-
             }
             catch (Exception e)
             {
@@ -393,7 +384,7 @@ namespace CoveoBlitz.RandomBot
         {
             foreach (var currentPos in GetAdjacent(state, pos).ToList())
             {
-                if (isTileEnnemy(state, state.board.At(currentPos))&& getDistance(currentPos, pos) < 2)
+                if (isTileEnnemy(state, state.board.At(currentPos)) && getDistance(currentPos, pos) < 2)
                 {
                     return true;
                 }
