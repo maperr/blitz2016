@@ -194,7 +194,7 @@ namespace CoveoBlitz.RandomBot
             switch (tile)
             {
                 case Tile.SPIKES:
-                    cost = 5;
+                    cost = 10;
                     break;
                 default:
                     cost = 1;
