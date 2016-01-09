@@ -1,4 +1,5 @@
-﻿using CoveoBlitz;
+﻿using System;
+using CoveoBlitz;
 using CoveoBlitz.RandomBot;
 
 namespace Coveo.StateMachine
@@ -7,6 +8,7 @@ namespace Coveo.StateMachine
     {
         public override Pos GetGoal(GameState state, TestBot bot)
         {
+            Console.WriteLine("This is war!!");
             return state.heroes[1].pos;
         }
     }
