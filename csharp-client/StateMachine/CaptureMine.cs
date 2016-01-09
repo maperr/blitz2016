@@ -17,14 +17,8 @@ namespace Coveo.StateMachine
             // else
             // mine
 
-
-            /*if (state.myHero.mineCount > 10000)
-            {
-                Console.WriteLine("Switching to attacking hero");
-                return new AttackWinner();
-            }*/
-
-            if(state.myHero.life <= 30)
+            // if capturing a mine will kill you
+            if(state.myHero.life < 26)
                 return new GoHeal();
 
 
