@@ -17,6 +17,7 @@ namespace CoveoBlitz.RandomBot
         public int Life { get; set; }
         public int Gold { get; set; }
         public int MyHeroId { get; set; }
+        public Tile MyHeroEnum { get; set; }
         public List<Pos> Mines = new List<Pos>();
         public List<Pos> Tavernes = new List<Pos>();
 
@@ -45,7 +46,6 @@ namespace CoveoBlitz.RandomBot
 
         public string Move(GameState state)
         {
-
             // Update Info
             Life = state.myHero.life;
             Gold = state.myHero.gold;
@@ -57,15 +57,16 @@ namespace CoveoBlitz.RandomBot
             {
                 GetImportantPos(state.board);
                 MyHeroId = state.myHero.id;
+                MyHeroEnum = (Tile)(2 + MyHeroId);
                 setup = true;
             }
 
             //Console.WriteLine(pos.x + ", "+ pos.y);
 
-            Pos north = new Pos {x = pos.x-1, y = pos.y};
-            Pos south = new Pos {x = pos.x+1, y = pos.y};
-            Pos east = new Pos {x = pos.x, y = pos.y+1};
-            Pos west = new Pos {x = pos.x, y = pos.y-1};
+            Pos north = new Pos { x = pos.x - 1, y = pos.y };
+            Pos south = new Pos { x = pos.x + 1, y = pos.y };
+            Pos east = new Pos { x = pos.x, y = pos.y + 1 };
+            Pos west = new Pos { x = pos.x, y = pos.y - 1 };
 
             //Console.WriteLine(board.At(north).ToString() + ", "+ board.At(south).ToString() + ", " + board.At(east).ToString() + ", " + board.At(west).ToString());
 
@@ -189,7 +190,7 @@ namespace CoveoBlitz.RandomBot
 
             */
         }
-        
+
         private bool BadChoice(string direction, Pos pos, Tile[][] board)
         {
             Pos movPos = pos;
@@ -199,7 +200,7 @@ namespace CoveoBlitz.RandomBot
                     movPos.x++;
                     break;
                 case Direction.North:
-                    movPos.x --;
+                    movPos.x--;
                     break;
                 case Direction.West:
                     movPos.y--;
@@ -210,9 +211,9 @@ namespace CoveoBlitz.RandomBot
 
             }
             Tile movTile = board.At(movPos);
-            return movTile == Tile.SPIKES || movTile == Tile.IMPASSABLE_WOOD || (movTile <= Tile.GOLD_MINE_4 && movTile >=Tile.GOLD_MINE_NEUTRAL) || movTile == Tile.TAVERN;
+            return movTile == Tile.SPIKES || movTile == Tile.IMPASSABLE_WOOD || (movTile <= Tile.GOLD_MINE_4 && movTile >= Tile.GOLD_MINE_NEUTRAL) || movTile == Tile.TAVERN;
         }
-    
+
 
 
 
@@ -254,10 +255,11 @@ namespace CoveoBlitz.RandomBot
                 {
                     if (board[i][j] >= Tile.GOLD_MINE_NEUTRAL && board[i][j] <= Tile.GOLD_MINE_4)
                     {
-                        Mines.Add(new Pos() {x = j, y =i});
-                    }else if (board[i][j] == Tile.TAVERN)
+                        Mines.Add(new Pos() { x = j, y = i });
+                    }
+                    else if (board[i][j] == Tile.TAVERN)
                     {
-                        Tavernes.Add(new Pos() {x = j, y = i});
+                        Tavernes.Add(new Pos() { x = j, y = i });
                     }
                 }
             }
@@ -441,7 +443,7 @@ namespace CoveoBlitz.RandomBot
                     pc.weight = previous.weight; // to modify
                 }
 
-                pc.weight += getCost(state.board.At(current));
+                pc.weight += getCost(state, current);
                 pc.current = current;
                 pc.previous = previous;
                 pc.previousDirection = previousDirection;
@@ -449,7 +451,7 @@ namespace CoveoBlitz.RandomBot
                 pc.heuristic = pc.weight + getDistance(current, goal);
 
                 // Void path if it would kill us
-                if (state.myHero.life < pc.weight)
+                if (CanKill(currentTile) && state.myHero.life < pc.weight)
                 {
                     return null;
                 }
@@ -464,7 +466,85 @@ namespace CoveoBlitz.RandomBot
             }
         }
 
-        private int getCost(Tile tile)
+        private bool CanKill(Tile tile)
+        {
+            if (tile == Tile.SPIKES || (tile >= Tile.HERO_1 && tile <= Tile.HERO_4))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private int getCost(GameState state, Pos pos)
+        {
+            int cost = 0;
+
+            // Check if next to ennemy
+            if (isNextToEnnemy(state, pos))
+            {
+                cost += 25;
+            }
+
+            cost += getTileCost(state.board.At(pos));
+
+            return cost;
+        }
+
+        private bool isNextToEnnemy(GameState state, Pos pos)
+        {
+            foreach (var currentPos in GetAdjacent(state, pos))
+            {
+                if (isTileEnnemy(state, state.board.At(currentPos)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool isTileEnnemy(GameState state, Tile tile)
+        {
+            if (tile == MyHeroEnum)
+            {
+                return false;
+            }
+            if (tile >= Tile.HERO_1 && tile <= Tile.HERO_4)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private List<Pos> GetAdjacent(GameState state, Pos pos)
+        {
+            var list = new List<Pos>();
+
+            Pos north = new Pos { x = pos.x - 1, y = pos.y };
+            Pos south = new Pos { x = pos.x + 1, y = pos.y };
+            Pos east = new Pos { x = pos.x, y = pos.y + 1 };
+            Pos west = new Pos { x = pos.x, y = pos.y - 1 };
+
+            if (isValid(state, north))
+            {
+                list.Add(north);
+            }
+            if (isValid(state, south))
+            {
+                list.Add(south);
+            }
+            if (isValid(state, east))
+            {
+                list.Add(east);
+            }
+            if (isValid(state, west))
+            {
+                list.Add(west);
+            }
+
+            return list;
+        }
+
+        private int getTileCost(Tile tile)
         {
             int cost;
             switch (tile)
