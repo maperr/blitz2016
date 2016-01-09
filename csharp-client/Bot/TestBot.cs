@@ -68,7 +68,7 @@ namespace CoveoBlitz.RandomBot
 
             //Console.WriteLine(board.At(north).ToString() + ", "+ board.At(south).ToString() + ", " + board.At(east).ToString() + ", " + board.At(west).ToString());
 
-            if (Life > 25)
+            if (Life > 25 && !(currentState is AttackWinner))
             {
 
                 // If adjacent mine present
@@ -82,7 +82,7 @@ namespace CoveoBlitz.RandomBot
                     return Direction.East;
             }
 
-            if (Gold > 1 && Life < 65)
+            if (Gold > 1 && Life < 65 && !(currentState is AttackWinner))
             {
                 //Check for healing
                 if (board.At(north) == Tile.TAVERN)
