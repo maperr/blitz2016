@@ -27,6 +27,23 @@ namespace Coveo.StateMachine
             if(state.myHero.life <= 30)
                 return new GoHeal();
 
+
+            // Max mine of hero
+            var maxMines = 0;
+            foreach (var hero in state.heroes)
+            {
+                if (maxMines < hero.mineCount)
+                    maxMines = hero.mineCount;
+            }
+
+            if (state.myHero.mineCount + 3 <= maxMines)
+            {
+                if(state.myHero.life >= 75)
+                    return new AttackWinner();
+                else
+                    return new GoHeal();
+            }
+
             return this;
         }
 

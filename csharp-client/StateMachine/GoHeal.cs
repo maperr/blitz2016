@@ -7,8 +7,22 @@ namespace Coveo.StateMachine
     {
         public override IState CalculateNextState(GameState state, TestBot bot)
         {
-            if(state.myHero.life > 75)
+            if (state.myHero.life > 75)
+            {
+                var maxMines = 0;
+                foreach (var hero in state.heroes)
+                {
+                    if (maxMines < hero.mineCount)
+                        maxMines = hero.mineCount;
+                }
+
+                if (state.myHero.mineCount + 3 <= maxMines)
+                {
+                    return new AttackWinner();
+                }
+
                 return new CaptureMine();
+            }
 
             return this;
         }

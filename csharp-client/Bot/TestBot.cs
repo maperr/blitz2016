@@ -40,7 +40,7 @@ namespace CoveoBlitz.RandomBot
         {
             currentState = currentState.CalculateNextState(state, this);
             var nextGoal = currentState.GetGoal(state, this);
-            return CalculatePath(state, nextGoal);
+            return CalculatePath(state, nextGoal).Item1;
         }
 
         public string Move(GameState state)
@@ -60,14 +60,14 @@ namespace CoveoBlitz.RandomBot
                 setup = true;
             }
 
-            Console.WriteLine(pos.x + ", "+ pos.y);
+            //Console.WriteLine(pos.x + ", "+ pos.y);
 
             Pos north = new Pos {x = pos.x-1, y = pos.y};
             Pos south = new Pos {x = pos.x+1, y = pos.y};
             Pos east = new Pos {x = pos.x, y = pos.y+1};
             Pos west = new Pos {x = pos.x, y = pos.y-1};
 
-            Console.WriteLine(board.At(north).ToString() + ", "+ board.At(south).ToString() + ", " + board.At(east).ToString() + ", " + board.At(west).ToString());
+            //Console.WriteLine(board.At(north).ToString() + ", "+ board.At(south).ToString() + ", " + board.At(east).ToString() + ", " + board.At(west).ToString());
 
             if (Life > 25)
             {
@@ -98,123 +98,7 @@ namespace CoveoBlitz.RandomBot
 
 
             return proofOnconcept(state);
-            /*
-            //// Check if life enough to subsist
-            //if (Life < CostToTavern + Constant.LifeDrainOnHit)
-            //{
-            //    // Pathfind to tavern
-
-            //}
-            //else
-            //{
-            //    // Pathfind to Mine
-            //}
-
-=======
-            ///TROUVER BUT
->>>>>>> c692b213f3f0058df885982c589f64a1cc264a19
-           
-            // Target player with maximum mines
-            var MaxMinePlayer = new Pos();
-            var MaxMine = 0;
-            var enemyLife = 0;
-            foreach (var hero in state.heroes)
-            {
-                if (hero.gold > MaxMine)
-                {
-                    if (hero.pos != state.myHero.pos)
-                    {
-                        MaxMine = hero.mineCount;
-                        MaxMinePlayer = hero.pos;
-                        enemyLife = hero.life;
-                    }
-                }
-            }
-
-            var meilleureTaverne = GetClosestTavern(pos);
-            var meilleureMine = GetClosestMine(pos, state.board);
-
-
-            if (MaxMine > state.myHero.mineCount + 1 &&
-                getDistance(MaxMinePlayer, pos) < getDistance(meilleureMine, meilleureMine))
-            {
-                Console.WriteLine("Heading towards enemy or tavern");
-                return CalculatePath(state, enemyLife < state.myHero.life ? MaxMinePlayer : meilleureTaverne);
-            }
-
-            if (Life > 40)
-            {
-                Console.WriteLine("Heading towards mine");
-
-                return CalculatePath(state, meilleureMine);
-            }
-
-            Console.WriteLine("Heading towards tavern");
-
-            return CalculatePath(state, meilleureTaverne);
-
-            //Check si assez vie, alors pathfind to
-            string direction = string.Empty;
-            int count = 0;
-            do
-            {
-                var newRand = random.Next(0, 4);
-                Console.WriteLine(newRand);
-                switch (newRand)
-                {
-                    case 0:
-                        direction = Direction.East;
-                        break;
-
-                    case 1:
-                        direction = Direction.West;
-                        break;
-
-                    case 2:
-                        direction = Direction.North;
-                        break;
-
-                    case 3:
-                        direction = Direction.South;
-                        break;
-                }
-                count++;
-            } while (BadChoice(direction, pos, board) && count < 4);
-            if (count < 4)
-                return direction;
-
-
-            Console.Write("No choices");
-            return Direction.Stay;
-
-            */
         }
-        
-        private bool BadChoice(string direction, Pos pos, Tile[][] board)
-        {
-            Pos movPos = pos;
-            switch (direction)
-            {
-                case Direction.South:
-                    movPos.x++;
-                    break;
-                case Direction.North:
-                    movPos.x --;
-                    break;
-                case Direction.West:
-                    movPos.y--;
-                    break;
-                case Direction.East:
-                    movPos.y++;
-                    break;
-
-            }
-            Tile movTile = board.At(movPos);
-            return movTile == Tile.SPIKES || movTile == Tile.IMPASSABLE_WOOD || (movTile <= Tile.GOLD_MINE_4 && movTile >=Tile.GOLD_MINE_NEUTRAL) || movTile == Tile.TAVERN;
-        }
-    
-
-
 
         public bool OurMine(Tile tile, int hero)
         {
@@ -304,11 +188,11 @@ namespace CoveoBlitz.RandomBot
         }
 
 
-        private string CalculatePath(GameState state, Pos goal)
+        private Tuple<string, int> CalculatePath(GameState state, Pos goal)
         {
             Pos start = state.myHero.pos;
 
-            Console.WriteLine("Begining calculating path from ({0},{1}) to ({2},{3})", start.x, start.y, goal.x, goal.y);
+            //Console.WriteLine("Begining calculating path from ({0},{1}) to ({2},{3})", start.x, start.y, goal.x, goal.y);
 
             try
             {
@@ -338,8 +222,8 @@ namespace CoveoBlitz.RandomBot
                     if (getDistance(currentVisited.current, goal) == 0)
                     {
                         string direction = Restitute(start, currentVisited);
-                        Console.WriteLine("Path found! Going {0}", direction);
-                        return direction;
+                        //Console.WriteLine("Path found! Going {0}", direction);
+                        return new Tuple<string, int>(direction, currentVisited.weight);
                     }
                     else
                     {
@@ -354,7 +238,7 @@ namespace CoveoBlitz.RandomBot
             }
 
             Console.WriteLine("No path found!");
-            return Direction.Stay;
+            return new Tuple<string, int>(Direction.Stay, 0);
         }
 
         private string Restitute(Pos start, PathCoord foundPath)
@@ -447,6 +331,13 @@ namespace CoveoBlitz.RandomBot
                 pc.previousDirection = previousDirection;
 
                 pc.heuristic = pc.weight + getDistance(current, goal);
+
+                // Void path if it would kill us
+                if (state.myHero.life < pc.weight)
+                {
+                    return null;
+                }
+
                 return pc;
 
             }
