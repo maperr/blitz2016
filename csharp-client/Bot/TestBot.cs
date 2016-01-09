@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Win32;
 
 namespace CoveoBlitz.RandomBot
 {
@@ -12,6 +13,8 @@ namespace CoveoBlitz.RandomBot
         public int CostToMine { get; set; }
         public int Life { get; set; }
         public int Gold { get; set; }
+
+        public List<Pos> Mines { get; set; } 
 
         private bool setup = false;
 
@@ -26,19 +29,25 @@ namespace CoveoBlitz.RandomBot
 
         public string Move(GameState state)
         {
-            // Initial setup
-            if (!setup)
-            {
-                // Calculate cost to nearest tavern
-                // Calculate cost to nearest mine
-                setup = true;
-            }
 
             // Update Info
             Life = state.myHero.life;
             Gold = state.myHero.gold;
             var pos = state.myHero.pos;
             var board = state.board;
+
+            // Initial setup
+            if (!setup)
+            {
+                // Calculate cost to nearest tavern
+                // Calculate cost to nearest mine
+                Mines = GetMinePos(state.board);
+                var distances = Mines.Select(x => (x.x - pos.x) ^ 2 + (x.y - pos.y) ^ 2).ToList();
+                var closestMine = Mines.ElementAt(distances.ToList().IndexOf(distances.Min()));
+                Console.WriteLine("Mine la plus proche :" + closestMine.x + ", "+closestMine.y);
+
+                setup = true;
+            }
 
             Console.WriteLine(pos.x + ", "+ pos.y);
 
@@ -62,7 +71,8 @@ namespace CoveoBlitz.RandomBot
                 if (MineToClaim(board.At(east), state.myHero.id))
                     return Direction.East;
             }
-            else if(Gold > 1)
+
+            if (Gold > 1 && Life < 65)
             {
                 //Check for healing
                 if (board.At(north) == Tile.TAVERN)
@@ -75,16 +85,16 @@ namespace CoveoBlitz.RandomBot
                     return Direction.East;
             }
 
-            // Check if life enough to subsist
-            if (Life < CostToTavern + Constant.LifeDrainOnHit)
-            {
-                // Pathfind to tavern
+            //// Check if life enough to subsist
+            //if (Life < CostToTavern + Constant.LifeDrainOnHit)
+            //{
+            //    // Pathfind to tavern
 
-            }
-            else
-            {
-                // Pathfind to Mine
-            }
+            //}
+            //else
+            //{
+            //    // Pathfind to Mine
+            //}
 
             string direction = string.Empty;
             int count = 0;
@@ -190,6 +200,6 @@ namespace CoveoBlitz.RandomBot
                 }
             }
             return positions;
-        } 
+        }
     }
 }
