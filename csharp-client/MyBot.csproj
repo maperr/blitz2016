@@ -67,6 +67,11 @@
     <Compile Include="Bot\RandomBot.cs" />
     <Compile Include="Core\ApiToolkit.cs" />
     <Compile Include="Core\SimpleBotRunner.cs" />
+    <Compile Include="StateMachine\AttackWinner.cs" />
+    <Compile Include="StateMachine\CaptureMine.cs" />
+    <Compile Include="StateMachine\GoHeal.cs" />
+    <Compile Include="StateMachine\IState.cs" />
+    <Compile Include="StateMachine\ProtectSelf.cs" />
     <Compile Include="State\State.cs" />
   </ItemGroup>
   <ItemGroup>
